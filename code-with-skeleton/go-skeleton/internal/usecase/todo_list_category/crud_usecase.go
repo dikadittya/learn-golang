@@ -28,8 +28,29 @@ func NewCrudTodoListCategory(
 
 type ICrudTodoListCategory interface {
 	Create(ctx context.Context, req entity.TodoListCategoryReq) error
+	GetAll(ctx context.Context) (res []*entity.TodoListCategoryResponse, err error)
 }
 
+func (t *CrudTodoListCategory) GetAll(ctx context.Context) (res []*entity.TodoListCategoryResponse, err error) {
+	// funcName := "CrudTodoListCategory.GetAll"
+
+	result, err := t.TodoListCategoryRepo.GetAll(ctx)
+	if err != nil {
+		// helper.LogError("TodoListCategoryRepo.GetByAll", funcName, err, captureFieldError, "")
+
+		return nil, err
+	}
+
+	for _, v := range result {
+		res = append(res, &entity.TodoListCategoryResponse{
+			ID:          v.ID,
+			Name:        v.Name,
+			Description: v.Description,
+		})
+	}
+
+	return res, nil
+}
 func (u *CrudTodoListCategory) Create(ctx context.Context, req entity.TodoListCategoryReq) error {
 	// TODO
 	// Ambil request data

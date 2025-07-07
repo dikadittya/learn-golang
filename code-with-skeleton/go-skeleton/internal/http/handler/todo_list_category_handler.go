@@ -27,6 +27,7 @@ func NewTodoListCategoryHandler(
 
 func (w *TodoListCategoryHandler) Register(app fiber.Router) {
 	app.Post("/todo-list-category", w.Create)
+	app.Get("/todo-lists-category", w.GetAll)
 }
 func (w *TodoListCategoryHandler) Create(c *fiber.Ctx) error {
 
@@ -42,4 +43,14 @@ func (w *TodoListCategoryHandler) Create(c *fiber.Ctx) error {
 	}
 
 	return w.presenter.BuildSuccess(c, nil, "Success", http.StatusOK)
+}
+
+func (w *TodoListCategoryHandler) GetAll(c *fiber.Ctx) error {
+
+	data, err := w.CrudTodoListCategoryUsecase.GetAll(c.Context())
+	if err != nil {
+		return w.presenter.BuildError(c, err)
+	}
+
+	return w.presenter.BuildSuccess(c, data, "Success", http.StatusOK)
 }

@@ -50,6 +50,7 @@ func (t *CrudTodoListCategory) GetAll(ctx context.Context) (res []*entity.TodoLi
 			ID:          v.ID,
 			Name:        v.Name,
 			Description: v.Description,
+			CreatedBy:   v.UserName,
 		})
 	}
 
@@ -61,6 +62,7 @@ func (u *CrudTodoListCategory) Create(ctx context.Context, req entity.TodoListCa
 	data := &myentity.TodoListCategory{
 		Name:        req.Name,
 		Description: req.Description,
+		CreatedBy:   req.UserID,
 		CreatedAt:   time.Now(),
 	}
 
@@ -87,6 +89,7 @@ func (t *CrudTodoListCategory) GetByID(ctx context.Context, todoListID int64) (*
 		ID:          data.ID,
 		Name:        data.Name,
 		Description: data.Description,
+		CreatedBy:   data.UserName,
 	}, nil
 }
 

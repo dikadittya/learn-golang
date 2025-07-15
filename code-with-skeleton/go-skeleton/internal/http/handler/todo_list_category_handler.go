@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/dikadittya/learn-golang/tree/code-with-skeleton/go-skeleton/internal/http/middleware"
 	"github.com/dikadittya/learn-golang/tree/code-with-skeleton/go-skeleton/internal/parser"
 	"github.com/dikadittya/learn-golang/tree/code-with-skeleton/go-skeleton/internal/presenter/json"
 	todo_list_category_usecase "github.com/dikadittya/learn-golang/tree/code-with-skeleton/go-skeleton/internal/usecase/todo_list_category"
@@ -26,16 +27,17 @@ func NewTodoListCategoryHandler(
 }
 
 func (w *TodoListCategoryHandler) Register(app fiber.Router) {
-	app.Post("/todo-lists-category", w.Create)
-	app.Get("/todo-lists-category", w.GetAll)
-	app.Get("/todo-lists-category/:id", w.GetByID)
-	app.Put("/todo-lists-category/:id", w.Update)
-	app.Delete("/todo-lists-category/:id", w.Delete)
+	app.Post("/todo-list-category", middleware.VerifyJWTToken, w.Create)
+	app.Get("/todo-list-category", middleware.VerifyJWTToken, middleware.VerifyJWTToken, w.GetAll)
+	app.Get("/todo-list-category/:id", middleware.VerifyJWTToken, w.GetByID)
+	app.Put("/todo-list-category/:id", middleware.VerifyJWTToken, w.Update)
+	app.Delete("/todo-list-category/:id", middleware.VerifyJWTToken, w.Delete)
 }
 func (w *TodoListCategoryHandler) Create(c *fiber.Ctx) error {
 
 	var req entity.TodoListCategoryReq
-	err := w.parser.ParserBodyRequest(c, &req)
+	err := w.parser.ParserBodyRequestWithUserID(c, &req)
+	// err := w.parser.ParserBodyRequest(c, &req)
 
 	if err != nil {
 		return w.presenter.BuildError(c, err)

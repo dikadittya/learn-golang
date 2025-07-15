@@ -17,8 +17,8 @@ type ITodoListCategoryRepository interface {
 	TrxSupportRepo
 	Create(ctx context.Context, dbTrx TrxObj, params *entity.TodoListCategory, nonZeroVal bool) error
 	LockByID(ctx context.Context, dbTrx TrxObj, ID int64) (result *entity.TodoListCategory, err error)
-	GetAll(ctx context.Context) (e []*entity.TodoListCategory, err error)
-	GetByID(ctx context.Context, ID int64) (e *entity.TodoListCategory, err error)
+	GetAll(ctx context.Context) (e []*entity.TodoListCategorySelect, err error)
+	GetByID(ctx context.Context, ID int64) (e *entity.TodoListCategorySelect, err error)
 	Update(ctx context.Context, dbTrx TrxObj, params *entity.TodoListCategory, changes *entity.TodoListCategory) (err error)
 	DeleteByID(ctx context.Context, dbTrx TrxObj, id int64) error
 }
@@ -42,14 +42,14 @@ func (r *TodoListCategoryRepository) Create(ctx context.Context, dbTrx TrxObj, p
 	return r.Trx(dbTrx).Select(cols).Create(&params).Error
 }
 
-func (r *TodoListCategoryRepository) GetAll(ctx context.Context) (result []*entity.TodoListCategory, err error) {
+func (r *TodoListCategoryRepository) GetAll(ctx context.Context) (result []*entity.TodoListCategorySelect, err error) {
 	funcName := "TodoListCategoryRepository.GetAll"
 
 	if err := helper.CheckDeadline(ctx); err != nil {
 		return nil, errwrap.Wrap(err, funcName)
 	}
 
-	err = r.db.Raw("SELECT * FROM todo_list_categories ").Scan(&result).Error
+	err = r.db.Raw("SELECT todo_list_categories.*, users.name AS user_name FROM todo_list_categories LEFT JOIN users ON todo_list_categories.created_by = users.id ").Scan(&result).Error
 	if errwrap.Is(err, gorm.ErrRecordNotFound) {
 		return nil, apperr.ErrRecordNotFound()
 	}
@@ -75,14 +75,14 @@ func (r *TodoListCategoryRepository) LockByID(ctx context.Context, dbTrx TrxObj,
 	return result, err
 }
 
-func (r *TodoListCategoryRepository) GetByID(ctx context.Context, ID int64) (result *entity.TodoListCategory, err error) {
+func (r *TodoListCategoryRepository) GetByID(ctx context.Context, ID int64) (result *entity.TodoListCategorySelect, err error) {
 	funcName := "TodoListCategoryRepository.GetByID"
 
 	if err := helper.CheckDeadline(ctx); err != nil {
 		return nil, errwrap.Wrap(err, funcName)
 	}
 
-	err = r.db.Raw("SELECT * FROM todo_list_categories WHERE id = ? LIMIT 1", ID).Scan(&result).Error
+	err = r.db.Raw("SELECT todo_list_categories.*, users.name AS user_name FROM todo_list_categories LEFT JOIN users ON todo_list_categories.created_by = users.id  WHERE todo_list_categories.id = ? LIMIT 1", ID).Scan(&result).Error
 	if errwrap.Is(err, gorm.ErrRecordNotFound) {
 		return nil, apperr.ErrRecordNotFound()
 	}
